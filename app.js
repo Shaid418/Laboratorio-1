@@ -1,6 +1,7 @@
 require('dotenv').config()
-const express= require ('express')
-const app= express()
+const Server = require ('./models/server')
+const server = new server ();
+server.listen();
 app.get('/',function(req,res){
 res.send('Hell World')
 
