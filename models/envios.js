@@ -1,49 +1,52 @@
-const { request, response } = require('express')
-const { ListadoEnvios } = require('../models/envios');
-const { guardarDB, leerDB } = require('../helpers/gestorDB')
+const { v4: uuidv4 } = require('uuid');
 
-const getEnvios = (req = request, res = response) => {
-    let lista = new ListadoEnvios()
-    let datosJSON = leerDB('envios');
-    lista.cargarTareasFromArray(datosJSON)
-    res.json(lista.listadoArr)
-}
-
-const postEnvios = (req = request, res = response) =>{
-    let lista = new ListadoEnvios()
-    let datosJSON = leerDB('envios');
-    lista.cargarTareasFromArray(datosJSON)
-    lista.crearEnvio(req.body)
-    guardarDB(lista.listadoArr,'envios')
-    res.send('Registro Creado')
+class Envios {
+    constructor(codigo, fecha, tracking, origen, destino, emisor, destinatario) {
+        this.id = uuidv4()  
+        this.codigo = codigo
+        this.fecha = fecha
+        this.tracking = tracking
+        this.origen = origen
+        this.destino = destino
+        this.emisor = emisor
+        this.destinatario = destinatario
+    }
 }
 
-const putEnvios = (req = request, res = response) =>{
-    let lista = new ListadoEnvios()
-    let datosJSON = leerDB('envios');
-    lista.cargarTareasFromArray(datosJSON)
-    //funcion para actualizar
-    const datos = lista.listadoArr.map(item =>
-          item.id == req.params.id ? {"id":item.id, ...req.body}: item
-        );
-    guardarDB(datos,'envios')
-    res.send('Registro Actualizado')
+class ListadoEnvios {
+    constructor() {
+        this._listado = {};
+    }
+
+    get listadoArr() {
+        const listado = [];
+        Object.keys(this._listado).forEach(key => {
+            const tarea = this._listado[key];
+            listado.push(tarea);
+        });
+
+        return listado;
+    }
+
+    cargarTareasFromArray(datos = []) {
+        datos.forEach(envio => {
+            this._listado[envio.id] = envio;
+        });
+    }
+
+    crearEnvio(datos) {
+        const envio = new Envios(
+            datos.codigo,
+            datos.fecha,
+            datos.tracking,
+            datos.origen,
+            datos.destino,
+            datos.emisor,
+            datos.destinatario );
+        this._listado[envio.id] = envio;
+    }
 }
-    
-const deleteEnvios = (req = request, res = response) =>{
-    let lista = new ListadoEnvios()
-    let datosJSON = leerDB('envios');
-    lista.cargarTareasFromArray(datosJSON)
-    let data = lista.listadoArr.filter(item =>  item.id !== req.params.id)
-    guardarDB(data,'envios')
-    res.send('Registro Eliminado')
-}
-    
+
 module.exports = {
-    getEnvios,
-    postEnvios,
-    putEnvios,
-    deleteEnvios
+    ListadoEnvios
 }
-
-

@@ -1,6 +1,7 @@
 
 const express = require('express');
 
+const cors = require('cors');
 class Server{
 
 constructor(){
@@ -29,5 +30,5 @@ console.log("EL puerto esta corriendo el puerto TCP" + process.env.PORT))
 }
 
 
-module.exports = server
+module.exports = Server
 
